@@ -7,7 +7,7 @@ This is the Next.js 15 (App Router) frontend for the HydrogenX green hydrogen mo
 - Dark-themed dashboard
 - Sidebar with sliders for system parameters
 - Revenue cards and a monthly stacked bar chart
-- Connects to a FastAPI backend at `http://localhost:8000`
+- Connects to a FastAPI backend at `https://hydrogenx.onrender.com`
 - Uses Tailwind CSS, React, TypeScript
 - Charting via Recharts
 
