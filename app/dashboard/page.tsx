@@ -1,12 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card } from '../../components/ui/Card';
 import { MonthlyChart } from '../../components/MonthlyChart';
 import { Button } from '../../components/ui/Button';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -14,7 +14,7 @@ export default function DashboardPage() {
   let result: any = null;
   try {
     if (dataStr) {
-      result = JSON.parse(dataStr);
+      result = JSON.parse(decodeURIComponent(dataStr));
     }
   } catch (e) {
     console.error('failed to parse dashboard data', e);
@@ -49,5 +49,13 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

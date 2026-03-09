@@ -59,10 +59,7 @@ export default function HomePage() {
 
   const goDashboard = () => {
     if (calcResult) {
-      router.push({
-        pathname: '/dashboard',
-        query: { data: JSON.stringify(calcResult) }
-      });
+      router.push('/dashboard?data=' + encodeURIComponent(JSON.stringify(calcResult)));
     }
   };
 
