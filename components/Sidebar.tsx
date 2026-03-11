@@ -4,6 +4,7 @@ import { NumberInput } from './ui/NumberInput';
 
 export interface Parameters {
   // Project Load & Autonomy
+  siteLoad: number;
   dailyLoad: number;
   batteryAutonomy: number;
   hydrogenAutonomy: number;
@@ -49,6 +50,7 @@ export interface Parameters {
 
 export const DEFAULT_PARAMETERS: Parameters = {
   // Project Load & Autonomy
+  siteLoad: 20,
   dailyLoad: 192,
   batteryAutonomy: 12,
   hydrogenAutonomy: 5,
@@ -116,6 +118,14 @@ export function Sidebar({ parameters, onParametersChange }: SidebarProps) {
       {/* Project Load & Autonomy */}
       <section className="mb-8 p-4 bg-gray-900 rounded border border-gray-700">
         <h3 className="font-semibold text-green-400 mb-4">Project Load & Autonomy</h3>
+
+        <NumberInput
+          label="Site Load (kW)"
+          value={parameters.siteLoad}
+          onChange={(v) => updateParam('siteLoad', v)}
+          tooltip="Peak site load in kW"
+          min={0}
+        />
 
         <NumberInput
           label="Daily Load (kWh/day)"

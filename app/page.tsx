@@ -24,6 +24,7 @@ export default function HomePage() {
   const [calcResult, setCalcResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
 
 
@@ -48,14 +49,14 @@ export default function HomePage() {
         
         // Extract preview values from response
         setPreview({
-          lcoe: data.lcoe ?? 0,
-          lcoh: data.lcoh ?? 0,
-          capex: data.capex ?? 0,
-          revenue: data.revenue ?? data.totalRevenue ?? 0,
-          totalRevenue: data.totalRevenue ?? 0,
-          electricityRevenue: data.electricityRevenue ?? 0,
-          heatRevenue: data.heatRevenue ?? 0,
-          oxygenRevenue: data.oxygenRevenue ?? 0
+          lcoe: data.financial_metrics?.lcoe_usd_per_kwh ?? 0,
+          lcoh: data.financial_metrics?.lcoh_usd_per_kg ?? 0,
+          capex: data.capex_breakdown?.total_capex_after_subsidy_usd ?? 0,
+          revenue: data.revenue_streams?.total_revenue_usd_per_year ?? 0,
+          totalRevenue: data.revenue_streams?.total_revenue_usd_per_year ?? 0,
+          electricityRevenue: data.revenue_streams?.electricity_sales_revenue_usd_per_year ?? 0,
+          heatRevenue: data.revenue_streams?.heat_recovery_revenue_usd_per_year ?? 0,
+          oxygenRevenue: data.revenue_streams?.oxygen_byproduct_revenue_usd_per_year ?? 0
         });
       } catch (e) {
         console.error('Calculation error:', e);
@@ -79,8 +80,23 @@ export default function HomePage() {
 };
   return (
     <div className="flex h-screen bg-gray-900 text-white">
-      <Sidebar parameters={parameters} onParametersChange={setParameters} />
-      <main className="flex-1 p-8 overflow-auto">
+      {/* Mobile menu button */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-20 p-2 bg-gray-800 rounded"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        ☰
+      </button>
+
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? 'block' : 'hidden'} md:block fixed md:relative z-10`}>
+        <Sidebar parameters={parameters} onParametersChange={setParameters} />
+      </div>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-5" onClick={() => setSidebarOpen(false)} />}
+
+      <main className="flex-1 p-8 overflow-auto md:ml-0 ml-0">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">HydrogenX System Design</h1>
           <Button 
