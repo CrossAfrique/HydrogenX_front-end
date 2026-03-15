@@ -46,6 +46,7 @@ const DashboardContent = () => {
           oxygenProduction: parsed.sizing?.h2_daily_production_kg * 8 * 365, // Approximate O2 from H2
           systemEfficiency: 70, // Placeholder
           renewableFraction: 80, // Placeholder
+          areaM2: parsed.sizing?.pv_area_m2 || (parsed.sizing?.pv_capacity_kwp * 6) || 0,
         };
         
         setResult(mappedResult);
@@ -126,7 +127,7 @@ const DashboardContent = () => {
             <p className="text-lg font-semibold">{formatNumber(result.paybackPeriod, 1)} years</p>
           </div>
         </div>
-
+      {/* Equipment sizing */}
         <h3 className="text-lg font-bold mt-8 mb-4 text-green-400">Equipment Sizing</h3>
         <div className="space-y-3 text-sm">
           {result.solarCapacity && (
@@ -159,13 +160,22 @@ const DashboardContent = () => {
               <span className="font-semibold">{formatNumber(result.fuelCellCapacity, 1)} kW</span>
             </div>
           )}
+          {result.areaM2 && (
+              <div className="flex justify-between p-2 bg-gray-900 rounded">
+                <span className="text-gray-400">Area (m²)</span>
+                <span className="font-semibold">{formatNumber(result.areaM2, 0)} m²</span>
+              </div>
+          )}
         </div>
 
-        <Button 
+       <Button 
           className="w-full mt-8"
-          onClick={() => router.push('/')}
-        >
-          ← Edit Parameters
+          onClick={() => {
+          localStorage.removeItem('calcResult');   // ← Clears the stored data
+          router.push('/');
+            }}
+            >
+            ← Edit Parameters
         </Button>
       </aside>
 
