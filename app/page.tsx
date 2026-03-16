@@ -28,6 +28,8 @@ export default function HomePage() {
 
  // Call backend API when parameters change
 useEffect(() => {
+  console.log('🔵 useEffect triggered. Current siteLoad:', parameters.siteLoad);
+  
   const doCalc = async () => {
     setLoading(true);
     setError(null);
@@ -81,6 +83,8 @@ useEffect(() => {
         }
       };
 
+      console.log('📤 Sending payload to backend with siteLoad:', payload.load_autonomy.daily_load_kw);
+
       const response = await fetch('https://hydrogenx.onrender.com/calculate_single_site', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -90,6 +94,8 @@ useEffect(() => {
       if (!response.ok) throw new Error(`API error: ${response.statusText}`);
 
       const data = await response.json();
+      console.log('✅ Response received. LCOE:', data.financial_metrics?.lcoe_usd_per_kwh);
+      
       setCalcResult(data);
 
       // Update live preview

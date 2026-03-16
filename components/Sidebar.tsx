@@ -50,8 +50,8 @@ export interface Parameters {
 
 export const DEFAULT_PARAMETERS: Parameters = {
   // Project Load & Autonomy
-  siteLoad: 1,
-  dailyLoad: 24,
+  siteLoad: 20,
+  dailyLoad: 192,
   batteryAutonomy: 12,
   hydrogenAutonomy: 5,
   totalAutonomy: 17, // 12 + 5
@@ -101,6 +101,7 @@ interface SidebarProps {
 
 export function Sidebar({ parameters, onParametersChange }: SidebarProps) {
   const updateParam = (key: keyof Parameters, value: number) => {
+    console.log(`🎚️ User changed ${key} to ${value}. Previous value was ${parameters[key]}`);
     const updated = { ...parameters, [key]: value };
 
     // Auto-calculate totalAutonomy when battery or hydrogen autonomy changes
@@ -108,6 +109,7 @@ export function Sidebar({ parameters, onParametersChange }: SidebarProps) {
       updated.totalAutonomy = updated.batteryAutonomy + updated.hydrogenAutonomy;
     }
 
+    console.log(`✏️ Calling onParametersChange with updated siteLoad: ${updated.siteLoad}`);
     onParametersChange(updated);
   };
 
