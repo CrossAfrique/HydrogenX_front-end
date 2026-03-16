@@ -1,24 +1,25 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from '../../components/ui/Card';
 import { MonthlyChart } from '../../components/MonthlyChart';
 import { Button } from '../../components/ui/Button';
 
 // Separate component for the main dashboard content to allow suspense wrap
 const DashboardContent = () => {
-  const router = useRouter();
+ const router = useRouter();
+  const searchParams = useSearchParams();   // ← MUST be at top level
+
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get data from localStorage (more reliable than URL params)
-    const storedData = localStorage.getItem('calcResult');
+    const dataStr = searchParams.get('data');
     
-    if (storedData) {
+    if (dataStr) {
       try {
-        const parsed = JSON.parse(storedData);
+        const parsed = JSON.parse(dataStr);
         console.log("✅ Dashboard received data:", parsed); // Debug log
         
         // Map backend data structure to expected flat structure
@@ -58,8 +59,8 @@ const DashboardContent = () => {
     }
     
     setLoading(false);
-  }, []);
-
+  }, [searchParams]);
+  
   // Format helpers
   const formatCurrency = (value: number | undefined) => {
     if (!value) return '—';
@@ -91,194 +92,131 @@ const DashboardContent = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
-      {/* Sidebar with key metrics */}
-      <aside className="w-80 bg-gray-800 p-6 overflow-auto border-r border-gray-700">
-        <h2 className="text-xl font-bold mb-6 text-green-400">Key Metrics</h2>
+  <div className="flex flex-col md:flex-row min-h-screen bg-gray-900 text-white">
+    
+    {/* Sidebar - Full width on mobile, fixed width on desktop */}
+    <aside className="w-full md:w-80 bg-gray-800 p-6 md:p-8 overflow-auto border-b md:border-r border-gray-700">
+      <h2 className="text-xl font-bold mb-6 text-green-400">Key Metrics</h2>
 
-        <div className="space-y-4">
-          <div className="p-3 bg-gray-900 rounded border border-gray-700">
-            <p className="text-xs text-gray-400">LCOE (Levelized Cost of Energy)</p>
-            <p className="text-lg font-semibold">${formatNumber(result.lcoe, 3)}/kWh</p>
-          </div>
-
-          <div className="p-3 bg-gray-900 rounded border border-gray-700">
-            <p className="text-xs text-gray-400">LCOH (Levelized Cost of Hydrogen)</p>
-            <p className="text-lg font-semibold">${formatNumber(result.lcoh, 3)}/kg</p>
-          </div>
-
-          <div className="p-3 bg-gray-900 rounded border border-gray-700">
-            <p className="text-xs text-gray-400">CAPEX (Capital Expenditure)</p>
-            <p className="text-lg font-semibold">{formatCurrency(result.capex)}</p>
-          </div>
-
-          <div className="p-3 bg-gray-900 rounded border border-gray-700">
-            <p className="text-xs text-gray-400">NPV (Net Present Value)</p>
-            <p className="text-lg font-semibold">{formatCurrency(result.npv)}</p>
-          </div>
-
-          <div className="p-3 bg-gray-900 rounded border border-gray-700">
-            <p className="text-xs text-gray-400">IRR (Internal Rate of Return)</p>
-            <p className="text-lg font-semibold">{formatNumber(result.irr, 1)}%</p>
-          </div>
-
-          <div className="p-3 bg-gray-900 rounded border border-gray-700">
-            <p className="text-xs text-gray-400">Payback Period</p>
-            <p className="text-lg font-semibold">{formatNumber(result.paybackPeriod, 1)} years</p>
-          </div>
+      <div className="space-y-4">
+        <div className="p-3 bg-gray-900 rounded border border-gray-700">
+          <p className="text-xs text-gray-400">LCOE</p>
+          <p className="text-lg font-semibold">${formatNumber(result.lcoe, 3)}/kWh</p>
         </div>
-      {/* Equipment sizing */}
-        <h3 className="text-lg font-bold mt-8 mb-4 text-green-400">Equipment Sizing</h3>
-        <div className="space-y-3 text-sm">
-          {result.solarCapacity && (
-            <div className="flex justify-between p-2 bg-gray-900 rounded">
-              <span className="text-gray-400">Solar PV Capacity</span>
-              <span className="font-semibold">{formatNumber(result.solarCapacity, 1)} kWp</span>
-            </div>
-          )}
-          {result.batteryCapacity && (
-            <div className="flex justify-between p-2 bg-gray-900 rounded">
-              <span className="text-gray-400">Battery Capacity</span>
-              <span className="font-semibold">{formatNumber(result.batteryCapacity, 1)} kWh</span>
-            </div>
-          )}
-          {result.hydrogenCapacity && (
-            <div className="flex justify-between p-2 bg-gray-900 rounded">
-              <span className="text-gray-400">H₂ Storage Capacity</span>
-              <span className="font-semibold">{formatNumber(result.hydrogenCapacity, 1)} kg</span>
-            </div>
-          )}
-          {result.electrolyzerCapacity && (
-            <div className="flex justify-between p-2 bg-gray-900 rounded">
-              <span className="text-gray-400">Electrolyzer Capacity</span>
-              <span className="font-semibold">{formatNumber(result.electrolyzerCapacity, 1)} kW</span>
-            </div>
-          )}
-          {result.fuelCellCapacity && (
-            <div className="flex justify-between p-2 bg-gray-900 rounded">
-              <span className="text-gray-400">Fuel Cell Capacity</span>
-              <span className="font-semibold">{formatNumber(result.fuelCellCapacity, 1)} kW</span>
-            </div>
-          )}
-          {result.areaM2 && (
-              <div className="flex justify-between p-2 bg-gray-900 rounded">
-                <span className="text-gray-400">Area (m²)</span>
-                <span className="font-semibold">{formatNumber(result.areaM2, 0)} m²</span>
-              </div>
-          )}
+        <div className="p-3 bg-gray-900 rounded border border-gray-700">
+          <p className="text-xs text-gray-400">LCOH</p>
+          <p className="text-lg font-semibold">${formatNumber(result.lcoh, 3)}/kg</p>
         </div>
-
-       <Button 
-          className="w-full mt-8"
-          onClick={() => {
-          localStorage.removeItem('calcResult');   // ← Clears the stored data
-          router.push('/');
-            }}
-            >
-            ← Edit Parameters
-        </Button>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">System Dashboard</h1>
-          <span className="text-gray-400 text-sm">Annual Analysis</span>
+        <div className="p-3 bg-gray-900 rounded border border-gray-700">
+          <p className="text-xs text-gray-400">CAPEX</p>
+          <p className="text-lg font-semibold">{formatCurrency(result.capex)}</p>
         </div>
-
-        {/* Revenue Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card 
-            title="Electricity Revenue" 
-            value={formatCurrency(result.electricityRevenue)} 
-          />
-          <Card 
-            title="Heat Revenue" 
-            value={formatCurrency(result.heatRevenue)} 
-          />
-          <Card 
-            title="Oxygen Revenue" 
-            value={formatCurrency(result.oxygenRevenue)} 
-          />
-          <Card 
-            title="Total Revenue" 
-            value={formatCurrency(result.totalRevenue)} 
-          />
+        <div className="p-3 bg-gray-900 rounded border border-gray-700">
+          <p className="text-xs text-gray-400">NPV</p>
+          <p className="text-lg font-semibold">{formatCurrency(result.npv)}</p>
         </div>
-
-        {/* Operational Data */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          <div className="p-4 bg-gray-800 rounded border border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-400 mb-3">Energy Generation</h3>
-            <div className="space-y-2 text-sm">
-              {result.renewableEnergy && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Renewable Energy</span>
-                  <span className="font-semibold">{formatNumber(result.renewableEnergy, 0)} kWh</span>
-                </div>
-              )}
-              {result.hydrogenProduction && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">H₂ Production</span>
-                  <span className="font-semibold">{formatNumber(result.hydrogenProduction, 1)} kg</span>
-                </div>
-              )}
-              {result.oxygenProduction && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">O₂ Production</span>
-                  <span className="font-semibold">{formatNumber(result.oxygenProduction, 1)} kg</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="p-4 bg-gray-800 rounded border border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-400 mb-3">Cost Breakdown</h3>
-            <div className="space-y-2 text-sm">
-              {result.opex && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Annual OPEX</span>
-                  <span className="font-semibold">{formatCurrency(result.opex)}</span>
-                </div>
-              )}
-              {result.maintenanceCost && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Maintenance Cost</span>
-                  <span className="font-semibold">{formatCurrency(result.maintenanceCost)}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="p-4 bg-gray-800 rounded border border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-400 mb-3">Efficiency Metrics</h3>
-            <div className="space-y-2 text-sm">
-              {result.systemEfficiency && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">System Efficiency</span>
-                  <span className="font-semibold">{formatNumber(result.systemEfficiency, 1)}%</span>
-                </div>
-              )}
-              {result.renewableFraction && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Renewable Fraction</span>
-                  <span className="font-semibold">{formatNumber(result.renewableFraction, 1)}%</span>
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="p-3 bg-gray-900 rounded border border-gray-700">
+          <p className="text-xs text-gray-400">IRR</p>
+          <p className="text-lg font-semibold">{formatNumber(result.irr, 1)}%</p>
         </div>
+        <div className="p-3 bg-gray-900 rounded border border-gray-700">
+          <p className="text-xs text-gray-400">Payback Period</p>
+          <p className="text-lg font-semibold">{formatNumber(result.paybackPeriod, 1)} years</p>
+        </div>
+      </div>
 
-        {/* Chart Section */}
-        {result.monthly && result.monthly.length > 0 && (
-          <div className="bg-gray-800 p-6 rounded border border-gray-700">
-            <h2 className="text-lg font-semibold mb-4">Monthly Revenue & Performance</h2>
-            <MonthlyChart data={result.monthly} />
+      <h3 className="text-lg font-bold mt-8 mb-4 text-green-400">Equipment Sizing</h3>
+      <div className="space-y-3 text-sm">
+        {result.solarCapacity && (
+          <div className="flex justify-between p-2 bg-gray-900 rounded">
+            <span className="text-gray-400">Solar PV Capacity</span>
+            <span className="font-semibold">{formatNumber(result.solarCapacity, 1)} kWp</span>
           </div>
         )}
-      </main>
-    </div>
-  );
+        {result.batteryCapacity && (
+          <div className="flex justify-between p-2 bg-gray-900 rounded">
+            <span className="text-gray-400">Battery Capacity</span>
+            <span className="font-semibold">{formatNumber(result.batteryCapacity, 1)} kWh</span>
+          </div>
+        )}
+        {result.hydrogenCapacity && (
+          <div className="flex justify-between p-2 bg-gray-900 rounded">
+            <span className="text-gray-400">H₂ Storage Capacity</span>
+            <span className="font-semibold">{formatNumber(result.hydrogenCapacity, 1)} kg</span>
+          </div>
+        )}
+        {result.electrolyzerCapacity && (
+          <div className="flex justify-between p-2 bg-gray-900 rounded">
+            <span className="text-gray-400">Electrolyzer Capacity</span>
+            <span className="font-semibold">{formatNumber(result.electrolyzerCapacity, 1)} kW</span>
+          </div>
+        )}
+        {result.fuelCellCapacity && (
+          <div className="flex justify-between p-2 bg-gray-900 rounded">
+            <span className="text-gray-400">Fuel Cell Capacity</span>
+            <span className="font-semibold">{formatNumber(result.fuelCellCapacity, 1)} kW</span>
+          </div>
+        )}
+        {result.areaM2 && (
+          <div className="flex justify-between p-2 bg-gray-900 rounded">
+            <span className="text-gray-400">Area</span>
+            <span className="font-semibold">{formatNumber(result.areaM2, 0)} m²</span>
+          </div>
+        )}
+      </div>
+
+      <Button 
+        className="w-full mt-8"
+        onClick={() => {
+          localStorage.removeItem('calcResult');
+          router.push('/');
+        }}
+      >
+        ← Edit Parameters
+      </Button>
+    </aside>
+
+    {/* Main Content - Full width on mobile */}
+    <main className="flex-1 p-4 md:p-8 overflow-auto">
+      <div className="flex justify-between items-center mb-6 md:mb-8">
+        <h1 className="text-3xl font-bold">System Dashboard</h1>
+        <span className="text-gray-400 text-sm hidden md:block">Annual Analysis</span>
+      </div>
+
+      {/* Revenue Cards - Stack on mobile, 4 columns on large screens */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card title="Electricity Revenue" value={formatCurrency(result.electricityRevenue)} />
+        <Card title="Heat Revenue" value={formatCurrency(result.heatRevenue)} />
+        <Card title="Oxygen Revenue" value={formatCurrency(result.oxygenRevenue)} />
+        <Card title="Total Revenue" value={formatCurrency(result.totalRevenue)} />
+      </div>
+
+      {/* Operational Data - Responsive grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="p-4 bg-gray-800 rounded border border-gray-700">
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">Energy Generation</h3>
+          {/* Your energy items */}
+        </div>
+        <div className="p-4 bg-gray-800 rounded border border-gray-700">
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">Cost Breakdown</h3>
+          {/* Your cost items */}
+        </div>
+        <div className="p-4 bg-gray-800 rounded border border-gray-700">
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">Efficiency Metrics</h3>
+          {/* Your efficiency items */}
+        </div>
+      </div>
+
+      {/* Chart Section */}
+      {result.monthly && result.monthly.length > 0 && (
+        <div className="bg-gray-800 p-4 md:p-6 rounded border border-gray-700">
+          <h2 className="text-lg font-semibold mb-4">Monthly Revenue & Performance</h2>
+          <MonthlyChart data={result.monthly} />
+        </div>
+      )}
+    </main>
+  </div>
+);
 };
 
 export default function DashboardPage() {

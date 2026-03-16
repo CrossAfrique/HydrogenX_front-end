@@ -74,8 +74,9 @@ export default function HomePage() {
 
  const goDashboard = () => {
   if (calcResult) {
-    localStorage.setItem('calcResult', JSON.stringify(calcResult));
-    router.push('/dashboard');
+    // Send data directly via URL (no localStorage)
+    const dataString = encodeURIComponent(JSON.stringify(calcResult));
+    router.push(`/dashboard?data=${dataString}`);
   }
 };
   return (
