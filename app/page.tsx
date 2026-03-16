@@ -25,14 +25,32 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
  // Call backend API when parameters change
 useEffect(() => {
   console.log('🔵 useEffect triggered. Current siteLoad:', parameters.siteLoad);
   
+  // Don't proceed if any parameter is NaN
+  if (Object.values(parameters).some(v => typeof v === 'number' && isNaN(v))) {
+    console.warn('⚠️ Skipping calculation: NaN detected in parameters');
+    setLoading(false);
+    return;
+  }
+  
   const doCalc = async () => {
     setLoading(true);
     setError(null);
+    
+    // Cancel previous request if it's still in flight
+    if (abortControllerRef.current) {
+      console.log('🛑 Cancelling previous request');
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new AbortController for this request
+    abortControllerRef.current = new AbortController();
+    
     try {
       const payload = {
         site_name: "Site 1",
@@ -88,7 +106,8 @@ useEffect(() => {
       const response = await fetch('https://hydrogenx.onrender.com/calculate_single_site', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: abortControllerRef.current.signal
       });
 
       if (!response.ok) throw new Error(`API error: ${response.statusText}`);
@@ -110,16 +129,22 @@ useEffect(() => {
         oxygenRevenue: data.revenue_streams?.oxygen_byproduct_revenue_usd_per_year ?? 0
       });
     } catch (e) {
-      console.error('Calculation error:', e);
-      setError(e instanceof Error ? e.message : 'Calculation failed');
-      setPreview(null);
+      if (e instanceof Error && e.name === 'AbortError') {
+        console.log('⏸️ Request was cancelled');
+      } else {
+        console.error('Calculation error:', e);
+        setError(e instanceof Error ? e.message : 'Calculation failed');
+        setPreview(null);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const timeoutId = setTimeout(doCalc, 500);
-  return () => clearTimeout(timeoutId);
+  return () => {
+    clearTimeout(timeoutId);
+  };
 }, [parameters]);
 
  const goDashboard = () => {

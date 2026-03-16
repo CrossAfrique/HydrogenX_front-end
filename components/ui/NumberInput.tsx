@@ -38,7 +38,13 @@ export function NumberInput({
       <input
         type="number"
         value={value}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
+        onChange={(e) => {
+          const numValue = parseFloat(e.target.value);
+          // Only call onChange if it's a valid number
+          if (!isNaN(numValue)) {
+            onChange(numValue);
+          }
+        }}
         disabled={disabled}
         step={step}
         min={min}
