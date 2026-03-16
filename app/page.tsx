@@ -29,37 +29,57 @@ export default function HomePage() {
  // Call backend API when parameters change
 useEffect(() => {
   const doCalc = async () => {
-    setLoading(false);
+    setLoading(true);
     setError(null);
     try {
       const payload = {
-  site_name: "Site 1",
-
-  // ← THIS IS THE MISSING PART
-  load_autonomy: {
-    daily_load_kw: parameters.siteLoad,          // ← your siteLoad value (kW)
-    battery_autonomy_hours: parameters.batteryAutonomy,
-    hydrogen_autonomy_hours: parameters.hydrogenAutonomy,
-  },
-
-  tech_specs: {
-    battery_usable_ratio: parameters.batteryDoD / 100,
-    battery_efficiency_percent: parameters.batteryEfficiency,
-    fuel_cell_efficiency_percent: parameters.fuelCellEfficiency,
-    electrolyzer_efficiency_percent: parameters.electrolyzerEfficiency,
-    pv_performance_ratio: parameters.pvEfficiencyFactor,
-    peak_sun_hours_per_day: (parameters.janAveragePSH + parameters.augustAveragePSH) / 2,
-  },
-
-  global_params: {
-    discount_rate_percent: parameters.discountRate,
-    inflation_percent: parameters.opexInflation,
-    subsidy_percent: parameters.capexSubsidy,
-    eaas_price_usd_per_kwh: parameters.eaasPrice,
-    project_lifetime_years: parameters.systemLifetime,
-    operation_days_per_year: 365,
-  }
-};
+        site_name: "Site 1",
+        load_autonomy: {
+          daily_load_kw: parameters.siteLoad,
+          battery_autonomy_hours: parameters.batteryAutonomy,
+          hydrogen_autonomy_hours: parameters.hydrogenAutonomy,
+        },
+        tech_specs: {
+          battery_usable_ratio: parameters.batteryDoD / 100,
+          battery_efficiency_percent: parameters.batteryEfficiency,
+          fuel_cell_efficiency_percent: parameters.fuelCellEfficiency,
+          electrolyzer_efficiency_percent: parameters.electrolyzerEfficiency,
+          pv_performance_ratio: parameters.pvEfficiencyFactor,
+          peak_sun_hours_per_day: (parameters.janAveragePSH + parameters.augustAveragePSH) / 2,
+          hydrogen_lhv_kwh_per_kg: parameters.hydrogenLHV,
+        },
+        sizing_safeties: {
+          oversize_factor_pv: parameters.oversizingFactorPV,
+          safety_margin: parameters.safetyMargin,
+          electrolyzer_charge_window_hours: parameters.electrolyzerChargeWindow,
+        },
+        global_params: {
+          discount_rate_percent: parameters.discountRate,
+          inflation_percent: parameters.opexInflation,
+          subsidy_percent: parameters.capexSubsidy,
+          eaas_price_usd_per_kwh: parameters.eaasPrice,
+          project_lifetime_years: parameters.systemLifetime,
+          operation_days_per_year: 365,
+          eaas_contract_years: parameters.eaasContractYears,
+          revenue_growth_percent: parameters.revenueGrowth,
+        },
+        costs: {
+          solar_pv_cost_per_kw: parameters.solarPVCost,
+          battery_cost_per_kwh: parameters.batteryCost,
+          fuel_cell_cost_per_kw: parameters.fuelCellCost,
+          electrolyzer_cost_per_kw: parameters.electrolyzerCost,
+          oxygen_production_ratio: parameters.oxygenProductionRatio,
+          oxygen_price_per_kg: parameters.oxygenPrice,
+        },
+        opex_params: {
+          opex_rate_pv_battery_percent: parameters.opexRatePVBattery,
+          opex_rate_electrolyzer_fuel_cell_percent: parameters.opexRateElectrolyzerFuelCell,
+        },
+        market_params: {
+          diesel_lcoe_usd_per_kwh: parameters.dieselLCOE,
+          units_deployed: parameters.unitsDeployed,
+        }
+      };
 
       const response = await fetch('https://hydrogenx.onrender.com/calculate_single_site', {
         method: 'POST',

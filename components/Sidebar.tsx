@@ -50,8 +50,8 @@ export interface Parameters {
 
 export const DEFAULT_PARAMETERS: Parameters = {
   // Project Load & Autonomy
-  siteLoad: 20,
-  dailyLoad: 192,
+  siteLoad: 1,
+  dailyLoad: 24,
   batteryAutonomy: 12,
   hydrogenAutonomy: 5,
   totalAutonomy: 17, // 12 + 5
