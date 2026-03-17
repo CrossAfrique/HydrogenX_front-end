@@ -53,7 +53,7 @@ useEffect(() => {
     
     try {
       const payload = {
-        site_name: "Site 1",
+        site_name: `Site 1 - ${Date.now()}`, // Add timestamp to bypass backend caching
         load_autonomy: {
           daily_load_kw: parameters.siteLoad,
           battery_autonomy_hours: parameters.batteryAutonomy,
@@ -105,7 +105,12 @@ useEffect(() => {
 
       const response = await fetch('https://hydrogenx.onrender.com/calculate_single_site', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate', // Prevent HTTP caching
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
         body: JSON.stringify(payload),
         signal: abortControllerRef.current.signal
       });
