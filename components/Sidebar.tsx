@@ -1,6 +1,7 @@
 import React from 'react';
 import { Slider } from './ui/Slider';
 import { NumberInput } from './ui/NumberInput';
+import { EditableInput } from "./ui/EditableInput";
 
 export interface Parameters {
   // Project Load & Autonomy
@@ -121,12 +122,14 @@ export function Sidebar({ parameters, onParametersChange }: SidebarProps) {
       <section className="mb-8 p-4 bg-gray-900 rounded border border-gray-700">
         <h3 className="font-semibold text-green-400 mb-4">Project Load & Autonomy</h3>
 
-        <NumberInput
+        <EditableInput
           label="Site Load (kW)"
           value={parameters.siteLoad}
           onChange={(v) => updateParam('siteLoad', v)}
           tooltip="Peak site load in kW"
           min={0}
+          step={0.1}           // optional — override default
+          placeholder="e.g. 45.5"
         />
 
         <NumberInput
