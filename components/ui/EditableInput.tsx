@@ -1,7 +1,6 @@
 import { useState, useEffect, ChangeEvent, FocusEvent } from 'react';
-import clsx from 'clsx';
-// Assuming you already have a Tooltip component — adjust if needed
-import Tooltip from './Tooltip'; // or wherever it lives
+import { Tooltip } from './Tooltip';
+import clsx from 'clsx';// or wherever it lives
 
 interface EditableInputProps {
   label: string;
