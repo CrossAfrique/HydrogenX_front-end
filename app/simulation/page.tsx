@@ -6,7 +6,6 @@ import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { simulateHourly, formatNumber, formatCurrency, SingleSiteInput } from '../../components/lib/api';
 
-
 interface HourlySnapshot {
   hour: number;
   pv_production_kw: number;

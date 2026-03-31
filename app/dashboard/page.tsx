@@ -280,12 +280,24 @@ const DashboardContent = () => {
           )}
         </div>
 
-        <div className="flex gap-2 mt-8">
-          <Button className="flex-1 text-sm" onClick={() => router.push('/')}>
+        <div className="flex flex-col gap-2 mt-8">
+          <Button className="w-full text-sm" onClick={() => router.push('/')}>
             ← Edit Parameters
           </Button>
           <Button
-            className="flex-1 text-sm"
+            className="w-full text-sm"
+            onClick={() => {
+              if (fullData) {
+                const encoded = encodeURIComponent(JSON.stringify(fullData));
+                router.push(`/simulation?data=${encoded}`);
+              }
+            }}
+            disabled={!fullData}
+          >
+            📊 Run Simulation
+          </Button>
+          <Button
+            className="w-full text-sm"
             onClick={() => setOptimizeModalOpen(true)}
           >
             ⚡ Optimize
@@ -300,9 +312,12 @@ const DashboardContent = () => {
           <div className="flex gap-2 flex-wrap">
             <Button
               onClick={() => {
-                const dataStr = searchParams.get('data');
-                router.push(`/simulation?data=${dataStr}`);
+                if (fullData) {
+                  const encoded = encodeURIComponent(JSON.stringify(fullData));
+                  router.push(`/simulation?data=${encoded}`);
+                }
               }}
+              disabled={!fullData}
               className="text-sm"
             >
               📊 Run Simulation
