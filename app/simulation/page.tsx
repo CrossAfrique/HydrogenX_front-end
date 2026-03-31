@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { simulateHourly, formatNumber, formatCurrency, SingleSiteInput } from '../../components/lib/api';
+import { simulateHourly, formatNumber, formatCurrency, SingleSiteInput } from '../../lib/api';
 
 interface HourlySnapshot {
   hour: number;
@@ -17,7 +17,7 @@ interface HourlySnapshot {
   curtailed_kw: number;
 }
 
-export default function SimulationPage() {
+const SimulationContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -269,5 +269,19 @@ export default function SimulationPage() {
         )}
       </main>
     </div>
+  );
+};
+
+export default function SimulationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center bg-gray-900 text-white">
+          <p className="text-gray-400">Loading simulation...</p>
+        </div>
+      }
+    >
+      <SimulationContent />
+    </Suspense>
   );
 }
