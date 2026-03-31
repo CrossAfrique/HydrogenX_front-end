@@ -4,7 +4,8 @@ import React, { useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { simulateHourly, formatNumber, formatCurrency, SingleSiteInput } from '../../lib/api';
+import { simulateHourly, formatNumber, formatCurrency, SingleSiteInput } from '../../components/lib/api';
+
 
 interface HourlySnapshot {
   hour: number;
