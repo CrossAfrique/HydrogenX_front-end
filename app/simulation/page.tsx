@@ -56,8 +56,14 @@ const SimulationContent = () => {
       return;
     }
 
-    // Try to reconstruct input from URL param
-    const dataStr = searchParams.get('data');
+    // Try to get data from localStorage first, then fall back to URL params
+    let dataStr = localStorage.getItem('dashboardData');
+    if (!dataStr) {
+      dataStr = searchParams.get('data');
+      if (dataStr) {
+        dataStr = decodeURIComponent(dataStr);
+      }
+    }
     if (!dataStr) {
       setError('No calculation data. Please go back to dashboard.');
       return;
@@ -67,7 +73,7 @@ const SimulationContent = () => {
       setLoading(true);
       setError(null);
 
-      const calcData = JSON.parse(decodeURIComponent(dataStr));
+      const calcData = JSON.parse(dataStr);
       const input: SingleSiteInput = {
         site_name: 'Simulation Site',
         load_autonomy: {

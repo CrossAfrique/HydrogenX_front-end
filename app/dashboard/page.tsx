@@ -13,6 +13,7 @@ import {
   calculateSingleSite,
 } from '../../components/lib/api';
 
+
 interface DashboardResult {
   lcoe: number;
   lcoh: number;
@@ -46,11 +47,18 @@ const DashboardContent = () => {
   const [lastInput, setLastInput] = useState<SingleSiteInput | null>(null);
 
   useEffect(() => {
-    const dataStr = searchParams.get('data');
+    // Try to get data from localStorage first, then fall back to URL params for backward compatibility
+    let dataStr = localStorage.getItem('dashboardData');
+    if (!dataStr) {
+      dataStr = searchParams.get('data');
+      if (dataStr) {
+        dataStr = decodeURIComponent(dataStr);
+      }
+    }
 
     if (dataStr) {
       try {
-        const parsed = JSON.parse(decodeURIComponent(dataStr));
+        const parsed = JSON.parse(dataStr);
         setFullData(parsed);
 
         const mappedResult: DashboardResult = {
@@ -288,8 +296,9 @@ const DashboardContent = () => {
             className="w-full text-sm"
             onClick={() => {
               if (fullData) {
-                const encoded = encodeURIComponent(JSON.stringify(fullData));
-                router.push(`/simulation?data=${encoded}`);
+                // Store data in localStorage instead of URL
+                localStorage.setItem('dashboardData', JSON.stringify(fullData));
+                router.push('/simulation');
               }
             }}
             disabled={!fullData}
@@ -313,8 +322,9 @@ const DashboardContent = () => {
             <Button
               onClick={() => {
                 if (fullData) {
-                  const encoded = encodeURIComponent(JSON.stringify(fullData));
-                  router.push(`/simulation?data=${encoded}`);
+                  // Store data in localStorage instead of URL
+                  localStorage.setItem('dashboardData', JSON.stringify(fullData));
+                  router.push('/simulation');
                 }
               }}
               disabled={!fullData}

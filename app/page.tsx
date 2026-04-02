@@ -7,6 +7,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { calculateSingleSite, formatCurrency, formatNumber, SingleSiteInput } from '../components/lib/api';
 
+
 interface Preview {
   lcoe?: number;
   lcoh?: number;
@@ -101,8 +102,9 @@ export default function HomePage() {
 
   const goDashboard = () => {
     if (calcResult) {
-      const dataString = encodeURIComponent(JSON.stringify(calcResult));
-      router.push(`/dashboard?data=${dataString}`);
+      // Store data in localStorage instead of URL to avoid URI length limits
+      localStorage.setItem('dashboardData', JSON.stringify(calcResult));
+      router.push('/dashboard');
     }
   };
   return (
